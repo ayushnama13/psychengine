@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Settings</h1>
+</div>
+
+<div x-data="settingsApp()" class="col gap-5">
+  <div class="card">
+    <label class="input-label">Session length (minutes)</label>
+    <input class="input" type="number" min="10" max="120" x-model="session_minutes">
+  </div>
+  <div class="card">
+    <label class="input-label">New topic interval (days)</label>
+    <input class="input" type="number" min="1" max="14" x-model="new_topic_interval_days">
+  </div>
+  <div class="card">
+    <label class="input-label">AI preference</label>
+    <select class="select" x-model="ai_preference">
+      <option value="auto">auto (Cerebras → Groq → Ollama)</option>
+      <option value="cerebras">Cerebras only</option>
+      <option value="groq">Groq only</option>
+      <option value="ollama">Ollama only (offline)</option>
+    </select>
+  </div>
+  <div>
+    <button class="btn btn-primary" @click="save()">Save</button>
+    <span x-show="msg" class="text-sm text-secondary ml-2" x-text="msg"></span>
+  </div>
+</div>
+
+<script>
+function settingsApp() {
+  return {
+    session_minutes: {{ settings.get('session_minutes', '45') }},
+    new_topic_interval_days: {{ settings.get('new_topic_interval_days', '3') }},
+    ai_preference: '{{ settings.get("ai_preference", "auto") }}',
+    msg: '',
+    async save() {
+      const r = await fetch('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({session_minutes:this.session_minutes, new_topic_interval_days:this.new_topic_interval_days, ai_preference:this.ai_preference})});
+      this.msg = r.ok ? 'saved.' : 'error.';
+      setTimeout(() => this.msg = '', 2000);
+    }
+  }
+}
+</script>
+{% endblock %}

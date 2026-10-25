@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block main_class %}narrow{% endblock %}
+{% block content %}
+
+<div class="section">
+  <div class="text-sm text-tertiary uppercase tracking-wider">{{ book.cluster }}</div>
+  <h1 class="page-title mt-2">{{ book.title }}</h1>
+  {% if book.author %}<div class="page-subtitle">{{ book.author }}</div>{% endif %}
+</div>
+
+{% if chapters|length > 1 %}
+<div class="card mb-6">
+  <div class="section-title mb-3">Chapters</div>
+  <div class="row gap-2 flex-wrap">
+    <a href="/books/{{ book.id }}" class="btn {% if not current_chapter %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">All</a>
+    {% for ch in chapters %}
+      <a href="/books/{{ book.id }}?chapter={{ ch|urlencode }}" class="btn {% if current_chapter == ch %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ ch[:60] }}</a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="col gap-5">
+  {% for c in chunks %}
+  <div class="card" id="chunk-{{ c.id }}">
+    <div class="row between mb-3">
+      <div class="text-sm text-tertiary">{{ c.chapter_name or "—" }} · p.{{ c.page_start }}{% if c.page_end != c.page_start %}-{{ c.page_end }}{% endif %}</div>
+      {% if topic_map.get(c.id) %}
+        <div class="row gap-2 flex-wrap">
+          {% for t in topic_map[c.id][:3] %}
+            <a href="/topics/{{ t.id }}" class="badge badge-layer-1">{{ t.name }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="font-reading text-lg leading-relaxed">{{ c.text }}</div>
+  </div>
+  {% else %}
+    {% with title="No chunks", desc="This book has no extractable text.", cta_text=None %}{% include "components/empty.html" %}{% endwith %}
+  {% endfor %}
+</div>
+
+{% endblock %}

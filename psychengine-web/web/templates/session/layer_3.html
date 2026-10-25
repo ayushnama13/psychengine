@@ -1,0 +1,53 @@
+{% extends "session/_shell.html" %}
+{% block title %}Layer 3: {{ topic.name }}{% endblock %}
+{% block activity %}
+
+<div class="row gap-2 mb-3"><span class="badge badge-layer-3">LAYER 3 · HOW</span></div>
+<h1 class="page-title">{{ topic.name }}</h1>
+<div class="page-subtitle mt-3">Application layer. Move from knowing to using.</div>
+
+<div x-data="{step:'teach', score:null}">
+
+  <div x-show="step==='teach'" class="card mt-8" style="border-left: 3px solid var(--accent-primary);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Teach-Back · No looking</div>
+    <div class="text-secondary mb-4">Explain {{ topic.name }} as if teaching a curious 15-year-old. Pretend the book doesn't exist.</div>
+    <textarea class="textarea" rows="6" placeholder="..."></textarea>
+    <button class="btn btn-primary mt-4" @click="step='multibook'">Compare with sources →</button>
+  </div>
+
+  <div x-show="step==='multibook'" class="mt-8">
+    <div class="section-title">All perspectives</div>
+    {% for c in chunks %}
+    <div class="card mb-4">
+      <div class="text-sm text-tertiary mb-2">{{ c.book_title }} · <span class="cluster-tag cluster-{{ c.cluster }}">{{ c.cluster }}</span></div>
+      <div class="font-reading leading-relaxed">{{ c.text[:1200] }}{% if c.text|length > 1200 %}…{% endif %}</div>
+    </div>
+    {% endfor %}
+    <button class="btn btn-primary" @click="step='transfer'">Cross-context transfer →</button>
+  </div>
+
+  <div x-show="step==='transfer'" class="card mt-8" style="border-left: 3px solid var(--color-warning);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Cross-Context Transfer</div>
+    <div class="text-secondary mb-4">If you first learned this in a dating context, apply it now to a workplace negotiation. If you learned it in dark psychology, apply it to a family conflict.</div>
+    <textarea class="textarea" rows="5" placeholder="In context X, this would manifest as..."></textarea>
+    <button class="btn btn-primary mt-4" @click="step='vuln'">Vulnerability check →</button>
+  </div>
+
+  <div x-show="step==='vuln'" class="card mt-8" style="border-left: 3px solid var(--color-danger);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Personal Vulnerability</div>
+    <div class="text-secondary mb-4">Could this tactic work on you? When? Be honest.</div>
+    <textarea class="textarea" rows="4"></textarea>
+    <div class="mt-4">
+      <label class="input-label">Self-assessed mastery (0-100)</label>
+      <input class="input" type="number" min="0" max="100" x-model="score">
+    </div>
+    <button class="btn btn-primary mt-4" @click="markComplete({score: parseFloat(score) || 65}); step='done'">Complete layer →</button>
+  </div>
+
+  <div x-show="step==='done'" class="card-hero mt-8">
+    <h2 class="font-display text-2xl mb-3">In 23 days — Stress Test</h2>
+    <div class="text-secondary leading-relaxed">A pop quiz under pressure. Mixed with other concepts. No warning.</div>
+  </div>
+
+</div>
+{% endblock %}

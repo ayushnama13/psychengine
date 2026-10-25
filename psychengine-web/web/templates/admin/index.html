@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Library &amp; Topics</h1>
+    <div class="page-subtitle">Admin console — review proposed topics, manage books, monitor AI usage.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="grid-4">
+    <div class="stat-card">
+      <div class="stat-number">{{ n_books }}</div>
+      <div class="stat-label">BOOKS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ n_chunks }}</div>
+      <div class="stat-label">CHUNKS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ n_extracted }}</div>
+      <div class="stat-label">CHUNKS EXTRACTED</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ n_topics_total }}</div>
+      <div class="stat-label">TOPICS ({{ n_topics_pending }} pending)</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="card-title mb-3">Quick Actions</h3>
+      <div class="col gap-3">
+        <a class="btn btn-primary" href="/admin/topics?show=pending">Review pending topics ({{ n_topics_pending }})</a>
+        <a class="btn btn-secondary" href="/admin/books">Manage books</a>
+        <a class="btn btn-secondary" href="/admin/topics?show=approved">Browse approved topics</a>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="card-title mb-3">CLI</h3>
+      <div class="font-mono text-sm text-secondary leading-relaxed">
+        .venv/bin/python -m psychengine.ingest.cli stats<br>
+        .venv/bin/python -m psychengine.ingest.cli all --yes<br>
+        .venv/bin/python -m psychengine.taxonomy.extract_concepts<br>
+        .venv/bin/python -m psychengine.taxonomy.cluster<br>
+        .venv/bin/python -m psychengine.taxonomy.dependencies<br>
+        .venv/bin/python -m psychengine.engine.decay
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if api_recent %}
+<div class="section">
+  <div class="section-title">AI Usage (last 24h)</div>
+  <div class="card p-0" style="overflow: hidden;">
+    <table style="width:100%; border-collapse: collapse;">
+      <thead><tr style="background: var(--surface-overlay);">
+        <th style="text-align:left; padding: var(--space-3); font-size: var(--text-xs); color: var(--text-tertiary);">Feature</th>
+        <th style="text-align:left; padding: var(--space-3); font-size: var(--text-xs); color: var(--text-tertiary);">Engine</th>
+        <th style="text-align:left; padding: var(--space-3); font-size: var(--text-xs); color: var(--text-tertiary);">Calls</th>
+        <th style="text-align:left; padding: var(--space-3); font-size: var(--text-xs); color: var(--text-tertiary);">Avg ms</th>
+      </tr></thead>
+      <tbody>
+      {% for r in api_recent %}
+        <tr style="border-top: 1px solid var(--border-subtle);">
+          <td style="padding: var(--space-3);" class="font-mono text-sm">{{ r.feature }}</td>
+          <td style="padding: var(--space-3);">{{ r.engine }}</td>
+          <td style="padding: var(--space-3);" class="font-mono">{{ r.n }}</td>
+          <td style="padding: var(--space-3);" class="font-mono">{{ r.avg_ms|round }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="section">
+  <div class="section-title">Books in DB</div>
+  {% if books %}
+  <div class="grid-auto">
+    {% for b in books %}
+      <div class="card">
+        <div class="card-title">{{ b.title }}</div>
+        {% if b.author %}<div class="text-secondary text-sm">{{ b.author }}</div>{% endif %}
+        <div class="row gap-2 mt-3 flex-wrap">
+          <span class="cluster-tag cluster-{{ b.cluster }}">{{ b.cluster }}</span>
+          <span class="badge badge-decay-attic font-mono">{{ b.total_chunks }} chunks</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="text-tertiary">No books ingested yet. Run <code>python -m psychengine.ingest.cli all</code>.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

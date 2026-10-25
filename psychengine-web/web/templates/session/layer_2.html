@@ -1,0 +1,51 @@
+{% extends "session/_shell.html" %}
+{% block title %}Layer 2: {{ topic.name }}{% endblock %}
+{% block activity %}
+
+<div class="row gap-2 mb-3">
+  <span class="badge badge-layer-2">LAYER 2 · WHY</span>
+  <span class="cluster-tag cluster-{{ topic.cluster_hint or 'attic' }}">{{ topic.cluster_hint or '—' }}</span>
+</div>
+<h1 class="page-title">{{ topic.name }}</h1>
+<div class="page-subtitle mt-3">Mechanism layer. Why does this work?</div>
+
+<div x-data="{step:'recall', score:null, example:''}">
+
+  <div x-show="step==='recall'" class="card mt-8" style="border-left: 3px solid var(--accent-primary);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-3">Recall (no peeking)</div>
+    <ol class="col gap-3" style="counter-reset: q;">
+      <li><div class="text-secondary">What was your one-sentence definition of {{ topic.name }} from Layer 1?</div><textarea class="textarea mt-2"></textarea></li>
+      <li><div class="text-secondary">What example did you give last time?</div><textarea class="textarea mt-2"></textarea></li>
+      <li><div class="text-secondary">On a scale of 0-100, how confident are you in this concept right now?</div><input class="input mt-2" type="number" min="0" max="100" x-model="score"></li>
+    </ol>
+    <button class="btn btn-primary mt-5" @click="step='mechanism'">Reveal mechanism →</button>
+  </div>
+
+  <div x-show="step==='mechanism'" class="mt-8">
+    <div class="section-title">Why it works (from the theory books)</div>
+    {% for c in chunks %}
+      {% if c.cluster == 'psychology_theory' or loop.index <= 2 %}
+      <div class="card mb-4">
+        <div class="text-sm text-tertiary mb-2">{{ c.book_title }} · <span class="cluster-tag cluster-{{ c.cluster }}">{{ c.cluster }}</span></div>
+        <div class="font-reading leading-relaxed">{{ c.text[:1400] }}{% if c.text|length > 1400 %}…{% endif %}</div>
+      </div>
+      {% endif %}
+    {% endfor %}
+    <button class="btn btn-primary mt-3" @click="step='connect'">Connect to your life →</button>
+  </div>
+
+  <div x-show="step==='connect'" class="card mt-8" style="border-left: 3px solid var(--color-success);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Connect to Your Life</div>
+    <div class="text-secondary mb-4">Write about a time you experienced or witnessed this. Personal examples are retained 2-3× better than abstract knowledge.</div>
+    <textarea class="textarea" x-model="example" placeholder="A time when..."></textarea>
+    <button class="btn btn-primary mt-4" @click="if (example.length > 30) { fetch('/session/example', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({topic_id: {{ topic.id }}, layer: 2, text: example})}); } markComplete({score: parseFloat(score) || 60}); step='done'" :disabled="example.length < 30">Save example & complete →</button>
+  </div>
+
+  <div x-show="step==='done'" class="card-hero mt-8">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Next up</div>
+    <h2 class="font-display text-2xl mb-3">In 4 days — Layer 3: HOW</h2>
+    <div class="text-secondary text-lg leading-relaxed">You'll apply this concept in a different context. Cross-context transfer is where shallow knowledge breaks and real understanding shows.</div>
+  </div>
+
+</div>
+{% endblock %}

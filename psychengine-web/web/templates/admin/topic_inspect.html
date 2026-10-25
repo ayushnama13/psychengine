@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} — Inspect{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="text-sm text-tertiary uppercase tracking-wider"><a href="/admin/topics">← topics</a></div>
+    <h1 class="page-title mt-2">{{ topic.name }}</h1>
+    <div class="page-subtitle">{{ chunks|length }} chunks (showing first 50)</div>
+  </div>
+  {% if not topic.user_reviewed %}<button class="btn btn-primary" onclick="approve()">Approve topic</button>{% endif %}
+</div>
+
+<div x-data="editor()" class="card mb-6">
+  <label class="input-label">Name</label>
+  <input class="input mb-3" x-model="name">
+  <label class="input-label">Description</label>
+  <textarea class="textarea mb-3" x-model="description">{{ topic.description or '' }}</textarea>
+  <label class="input-label">Cluster hint</label>
+  <select class="select mb-4" x-model="cluster_hint">
+    <option value="">—</option>
+    <option value="dark_psychology">dark_psychology</option>
+    <option value="social_dynamics">social_dynamics</option>
+    <option value="psychology_theory">psychology_theory</option>
+    <option value="mindset">mindset</option>
+  </select>
+  <button class="btn btn-primary" @click="save()">Save changes</button>
+  <span x-show="msg" class="ml-3 text-secondary text-sm" x-text="msg"></span>
+</div>
+
+<div class="section-title">Chunks mapped to this topic</div>
+<div class="col gap-4">
+  {% for c in chunks %}
+  <div class="card">
+    <div class="row between mb-2">
+      <div class="text-sm text-tertiary">{{ c.book_title }} · {{ c.chapter_name or "—" }} · <span class="cluster-tag cluster-{{ c.cluster }}">{{ c.cluster }}</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="unmap({{ c.id }}, {{ topic.id }})">Unmap</button>
+    </div>
+    <div class="font-reading leading-relaxed text-secondary line-clamp-3">{{ c.text }}</div>
+  </div>
+  {% else %}
+    <div class="text-tertiary">No chunks mapped.</div>
+  {% endfor %}
+</div>
+
+<script>
+function editor() {
+  return {
+    name: {{ topic.name|tojson }},
+    description: {{ (topic.description or '')|tojson }},
+    cluster_hint: {{ (topic.cluster_hint or '')|tojson }},
+    msg: '',
+    async save() {
+      const r = await fetch('/admin/topics/{{ topic.id }}/update', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({name:this.name, description:this.description, cluster_hint:this.cluster_hint})});
+      this.msg = r.ok ? 'saved.' : 'error.';
+      setTimeout(() => this.msg = '', 2000);
+    }
+  }
+}
+async function approve() {
+  await fetch('/admin/topics/{{ topic.id }}/approve', {method:'POST'});
+  location.reload();
+}
+async function unmap(cid, tid) {
+  if (!confirm('Unmap chunk from this topic?')) return;
+  await fetch('/admin/chunks/' + cid + '/unmap_topic/' + tid, {method:'POST'});
+  location.reload();
+}
+</script>
+{% endblock %}

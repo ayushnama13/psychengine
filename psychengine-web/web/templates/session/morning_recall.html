@@ -1,0 +1,24 @@
+{% extends "session/_shell.html" %}
+{% block title %}Morning Recall{% endblock %}
+{% block activity %}
+
+<div class="text-sm text-tertiary uppercase tracking-wider">Morning Recall · 2 min</div>
+<h1 class="page-title mt-2">What do you remember?</h1>
+<div class="page-subtitle mt-3">Quick retrieval check from recent sessions. No new content. Just pull from memory.</div>
+
+<div class="mt-8 col gap-4">
+  {% for r in recents %}
+    <div class="card">
+      <div class="text-sm text-tertiary mb-2">Topic</div>
+      <div class="card-title">{{ r.name }}</div>
+      <textarea class="textarea mt-3" placeholder="One sentence: what is this concept and why does it matter?"></textarea>
+    </div>
+  {% else %}
+    <div class="card empty">
+      <div class="empty-title">Nothing to recall yet</div>
+      <div class="empty-desc">Come back tomorrow after completing today's session.</div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

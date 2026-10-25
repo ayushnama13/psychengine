@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Books{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Books</h1>
+    <div class="page-subtitle">{{ books|length }} books in library</div>
+  </div>
+</div>
+
+<div class="row gap-2 mb-6 flex-wrap">
+  <a href="/books" class="btn {% if not current_cluster %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">All</a>
+  {% for c in clusters %}
+    <a href="/books?cluster={{ c }}" class="btn {% if current_cluster == c %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ c }}</a>
+  {% endfor %}
+</div>
+
+{% if books %}
+<div class="grid-auto card-grid">
+  {% for b in books %}
+  <a href="/books/{{ b.id }}" class="card interactive">
+    <div class="card-title">{{ b.title }}</div>
+    {% if b.author %}<div class="text-secondary text-sm mt-1">{{ b.author }}</div>{% endif %}
+    <div class="row gap-2 mt-3 flex-wrap">
+      <span class="cluster-tag cluster-{{ b.cluster }}">{{ b.cluster }}</span>
+      <span class="badge badge-decay-attic font-mono">{{ b.total_chunks }} chunks</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  {% with title="No books yet", desc="Ingest PDFs from your library to begin.", cta_text="Open Admin", cta_href="/admin" %}{% include "components/empty.html" %}{% endwith %}
+{% endif %}
+
+{% endblock %}

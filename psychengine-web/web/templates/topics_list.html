@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Topics{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Topics</h1>
+    <div class="page-subtitle">{{ topics|length }} topics indexed across all books</div>
+  </div>
+</div>
+
+<div class="row gap-2 mb-6 flex-wrap">
+  <a href="/topics" class="btn {% if not current_cluster %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">All</a>
+  {% for c in clusters %}
+    <a href="/topics?cluster={{ c }}" class="btn {% if current_cluster == c %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ c }}</a>
+  {% endfor %}
+</div>
+
+{% if topics %}
+<div class="grid-auto card-grid">
+  {% for t in topics %}
+  <a href="/topics/{{ t.id }}" class="card interactive">
+    <div class="row between">
+      <div class="card-title">{{ t.name }}</div>
+      {% if t.current_layer %}<span class="badge badge-layer-{{ t.current_layer }}">L{{ t.current_layer }}</span>{% endif %}
+    </div>
+    <div class="card-desc line-clamp-2">{{ t.description or "No description yet." }}</div>
+    <div class="row gap-2 mt-3 flex-wrap">
+      {% if t.cluster_hint %}<span class="cluster-tag cluster-{{ t.cluster_hint }}">{{ t.cluster_hint }}</span>{% endif %}
+      <span class="badge badge-decay-{{ t.days|decay_status }}"><span class="decay-dot decay-dot-{{ t.days|decay_status }}"></span>{{ t.days|days_ago_human }}</span>
+    </div>
+    <div class="card-meta mt-3">{{ t.n_chunks }} chunks · mastery {{ (t.mastery_score or 0)|round }}%</div>
+    <div class="progress mt-2"><div class="progress-fill" style="width: {{ (t.mastery_score or 0)|round }}%"></div></div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  {% with title="No topics yet", desc="Run the taxonomy pipeline to discover topics from your library, then approve them in Admin.", cta_text="Open Admin", cta_href="/admin/topics" %}{% include "components/empty.html" %}{% endwith %}
+{% endif %}
+
+{% endblock %}

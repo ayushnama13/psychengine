@@ -1,0 +1,22 @@
+{% extends "session/_shell.html" %}
+{% block title %}End of Day{% endblock %}
+{% block activity %}
+
+<div class="text-sm text-tertiary uppercase tracking-wider">End-of-Day Primer · 2 min</div>
+<h1 class="page-title mt-2">Today's highlights</h1>
+<div class="page-subtitle mt-3">Light retrieval before sleep. Primes overnight consolidation.</div>
+
+<div class="card mt-8 col gap-4">
+  {% for r in today_log %}
+    <div class="row between">
+      <div class="card-title">{{ r.name }}</div>
+      <span class="badge badge-decay-fresh">{{ r.engagement_type }}</span>
+    </div>
+  {% else %}
+    <div class="text-tertiary">No activity logged today.</div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block primary_action %}
+  <button class="btn btn-primary btn-lg" onclick="finalize()">Finish Session →</button>
+{% endblock %}

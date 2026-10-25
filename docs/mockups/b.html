@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psych Engine - Pro Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #07090E;
+            --bg-panel: rgba(16, 20, 28, 0.65);
+            --bg-panel-hover: rgba(25, 31, 43, 0.85);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --accent-primary: #FF3366;
+            --accent-gradient: linear-gradient(135deg, #FF3366, #FF7733);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-highlight: rgba(255, 51, 102, 0.4);
+            --success: #10B981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Ambient Animated Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .ambient-blob {
+            position: absolute;
+            filter: blur(100px);
+            opacity: 0.15;
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #FF3366; }
+        .blob-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #FF7733; animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10%, 10%) scale(1.1); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 260px;
+            background: rgba(10, 13, 18, 0.8);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            width: 28px; height: 28px;
+            background: var(--accent-gradient);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            color: var(--text-primary);
+            background: rgba(255, 51, 102, 0.1);
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 3rem;
+            position: relative;
+        }
+
+        /* Top Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.5s ease backwards;
+        }
+
+        .search-bar {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            width: 300px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        .search-bar:focus { border-color: var(--border-highlight); }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 600; color: var(--accent-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(20, 24, 34, 0.8), rgba(20, 24, 34, 0.2));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.5s ease 0.1s backwards;
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
+        }
+
+        .hero-content h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .hero-content p { color: var(--text-secondary); font-size: 0.95rem; max-width: 500px; }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s ease; border: none;
+        }
+        .btn-primary { background: var(--text-primary); color: var(--bg-main); }
+        .btn-primary:hover { background: #E2E8F0; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.1); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem;
+            animation: fadeInUp 0.5s ease 0.2s backwards;
+        }
+        .stat-card {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            padding: 1.5rem; border-radius: 12px; backdrop-filter: blur(5px);
+        }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .stat-label { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .stat-value { font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: 0.5rem; }
+        .trend-up { color: var(--success); font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 4px;}
+
+        /* Section Setup */
+        .section-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+        /* Progress Table */
+        .data-table-container {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 3rem;
+            animation: fadeInUp 0.5s ease 0.3s backwards;
+            overflow-x: auto;
+        }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 1rem; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        td { padding: 1rem; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        
+        /* Specialized Table Row Styling */
+        .impact-row {
+            background: linear-gradient(90deg, rgba(255, 51, 102, 0.08) 0%, transparent 100%);
+            border-left: 3px solid var(--accent-primary);
+        }
+        .impact-row td:first-child { font-weight: 600; color: var(--accent-primary); }
+
+        .progress-bar-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-gradient); border-radius: 3px; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+        /* Topics Grid */
+        .topics-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;
+            animation: fadeInUp 0.5s ease 0.4s backwards; padding-bottom: 3rem;
+        }
+        
+        .topic-card {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 1.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .topic-card:hover {
+            background: var(--bg-panel-hover); border-color: var(--border-highlight);
+            transform: translateY(-5px); box-shadow: 0 12px 24px -10px rgba(255, 51, 102, 0.15);
+        }
+        .topic-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-gradient); opacity: 0; transition: opacity 0.3s;
+        }
+        .topic-card:hover::before { opacity: 1; }
+
+        .topic-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-primary); margin-bottom: 0.75rem; font-weight: 700; }
+        .topic-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .topic-desc { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .topic-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .topic-stats { color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="ambient-blob blob-1"></div>
+        <div class="ambient-blob blob-2"></div>
+    </div>
+
+    <aside>
+        <div class="logo">
+            <div class="logo-icon"></div>
+            Psych Engine
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                Topics Library
+            </a>
+            <a href="#" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Practice Arena
+            </a>
+            <a href="#" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                Cognitive Profile
+            </a>
+        </nav>
+    </aside>
+
+    <main>
+        
+        <header>
+            <input type="text" class="search-bar" placeholder="Search topics, chunks, or concepts...">
+            <div class="user-profile">
+                <div class="avatar">U</div>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <p style="color: #FF3366; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem;">System Status</p>
+                <h1>All Caught Up.</h1>
+                <p>Your cognitive load is optimized. The next layer of dark manipulation tactics will unlock based on your scheduled spaced repetition.</p>
+            </div>
+            <button class="btn btn-primary">Adjust Parameters</button>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Current Streak</span>
+                </div>
+                <div class="stat-value">12 <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">Days</span></div>
+                <div class="trend-up">↑ +2 from last week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Taxonomy Topics</span>
+                </div>
+                <div class="stat-value">22</div>
+                <div style="color: var(--text-secondary); font-size: 0.8rem;">Across 4 disciplines</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Chunks Processed</span>
+                </div>
+                <div class="stat-value">345</div>
+                <div class="trend-up">↑ +15% retention rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Next Layer Due</span>
+                </div>
+                <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.5rem;">Tomorrow</div>
+                <div style="color: var(--accent-primary); font-size: 0.8rem; font-weight: 600;">Influence & Persuasion</div>
+            </div>
+        </section>
+
+        <h2 class="section-header">Module Progression Analytics</h2>
+        <section class="data-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Taxonomy Classification</th>
+                        <th style="width: 30%;">Coverage Progress</th>
+                        <th>Chunks Read</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="impact-row">
+                        <td>Core: Dark Manipulation Tactics</td>
+                        <td>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: 82%;"></div>
+                            </div>
+                        </td>
+                        <td>130 / 158</td>
+                        <td><span class="status-badge" style="background: rgba(255, 51, 102, 0.15); color: #FF3366;">High Priority</span></td>
+                    </tr>
+                    <tr>
+                        <td>Influence & Persuasion</td>
+                        <td>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: 65%;"></div>
+                            </div>
+                        </td>
+                        <td>84 / 120</td>
+                        <td><span class="status-badge">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Recognizing Manipulation</td>
+                        <td>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: 40%;"></div>
+                            </div>
+                        </td>
+                        <td>68 / 170</td>
+                        <td><span class="status-badge">Active</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <h2 class="section-header">Highest Coverage Topics</h2>
+        <section class="topics-grid">
+            
+            <article class="topic-card">
+                <div class="topic-tag">Dark Psychology</div>
+                <h3 class="topic-title">Dark Manipulation Tactics</h3>
+                <p class="topic-desc">Coercive and exploitative influence techniques used to control, destabilize, or harm; gaslighting, emotional blackmail...</p>
+                <div class="topic-footer">
+                    <span class="topic-stats">130 Chunks</span>
+                    <span class="topic-stats">5 Sources</span>
+                </div>
+            </article>
+
+            <article class="topic-card">
+                <div class="topic-tag">Dark Psychology</div>
+                <h3 class="topic-title">Influence & Persuasion</h3>
+                <p class="topic-desc">Principles and methods for ethically and unethically moving people to action: Cialdini's six principles, rhetorical appeals...</p>
+                <div class="topic-footer">
+                    <span class="topic-stats">84 Chunks</span>
+                    <span class="topic-stats">5 Sources</span>
+                </div>
+            </article>
+
+            <article class="topic-card">
+                <div class="topic-tag">Social Dynamics</div>
+                <h3 class="topic-title">Inner Game & Mindset</h3>
+                <p class="topic-desc">Core psychological foundations of attraction and social interaction: self-worth, purpose, confidence, and freedom from approval...</p>
+                <div class="topic-footer">
+                    <span class="topic-stats">57 Chunks</span>
+                    <span class="topic-stats">5 Sources</span>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

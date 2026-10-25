@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }}{% endblock %}
+{% block main_class %}narrow{% endblock %}
+{% block content %}
+
+<div class="section">
+  <div class="text-sm text-tertiary uppercase tracking-wider">Topic</div>
+  <h1 class="page-title mt-2">{{ topic.name }}</h1>
+  <div class="page-subtitle text-lg mt-3">{{ topic.description or "" }}</div>
+  <div class="row gap-3 mt-4 flex-wrap">
+    {% if topic.cluster_hint %}<span class="cluster-tag cluster-{{ topic.cluster_hint }}">{{ topic.cluster_hint }}</span>{% endif %}
+    {% if progress %}<span class="badge badge-layer-{{ progress.current_layer or 1 }}">L{{ progress.current_layer or 0 }}/5</span>{% endif %}
+    {% if decay %}<span class="badge badge-decay-{{ decay.days_since_engagement|decay_status }}"><span class="decay-dot decay-dot-{{ decay.days_since_engagement|decay_status }}"></span>{{ decay.days_since_engagement|days_ago_human }}</span>{% endif %}
+  </div>
+</div>
+
+{% if deps or unlocks %}
+<div class="card mb-6">
+  {% if deps %}<div class="text-sm text-tertiary mb-2">Requires:</div>
+  <div class="row gap-2 flex-wrap mb-3">{% for d in deps %}<a href="/topics/{{ d.id }}" class="badge badge-decay-attic">{{ d.name }}</a>{% endfor %}</div>{% endif %}
+  {% if unlocks %}<div class="text-sm text-tertiary mb-2">Unlocks:</div>
+  <div class="row gap-2 flex-wrap">{% for u in unlocks %}<a href="/topics/{{ u.id }}" class="badge badge-layer-2">{{ u.name }}</a>{% endfor %}</div>{% endif %}
+</div>
+{% endif %}
+
+<div x-data="{ tab: 'content' }">
+  <div class="row gap-4 mb-6" style="border-bottom: 1px solid var(--border-subtle);">
+    <button @click="tab='content'" :class="tab==='content' ? 'text-accent' : 'text-secondary'" class="btn-ghost btn" style="border-bottom: 2px solid transparent;" :style="tab==='content' ? 'border-bottom-color: var(--accent-primary)' : ''">Content ({{ chunks|length }})</button>
+    <button @click="tab='timeline'" :class="tab==='timeline' ? 'text-accent' : 'text-secondary'" class="btn-ghost btn">Timeline ({{ timeline|length }})</button>
+    <button @click="tab='notes'" :class="tab==='notes' ? 'text-accent' : 'text-secondary'" class="btn-ghost btn">Notes ({{ examples|length }})</button>
+  </div>
+
+  <div x-show="tab==='content'" class="col gap-5">
+    {% for c in chunks %}
+    <div class="card">
+      <div class="row between mb-3">
+        <div class="text-sm text-tertiary">{{ c.book_title }} · {{ c.chapter_name or "—" }}</div>
+        <span class="cluster-tag cluster-{{ c.cluster }}">{{ c.cluster }}</span>
+      </div>
+      <div class="font-reading leading-relaxed text-secondary">{{ c.text[:1200] }}{% if c.text|length > 1200 %}…{% endif %}</div>
+    </div>
+    {% else %}
+      {% with title="No chunks mapped", desc="This topic has no chunks yet. Run taxonomy clustering or approve more topics.", cta_text=None %}{% include "components/empty.html" %}{% endwith %}
+    {% endfor %}
+  </div>
+
+  <div x-show="tab==='timeline'" class="col gap-3">
+    {% for e in timeline %}
+      <div class="card row between">
+        <div>{{ e.engagement_type }}</div>
+        <div class="text-tertiary text-sm">{{ e.timestamp[:16] }}</div>
+        {% if e.score %}<div class="font-mono">{{ e.score|round }}</div>{% endif %}
+      </div>
+    {% else %}
+      <div class="text-tertiary">No engagement yet.</div>
+    {% endfor %}
+  </div>
+
+  <div x-show="tab==='notes'" class="col gap-3">
+    {% for ex in examples %}
+      <div class="card">
+        <div class="row between text-sm text-tertiary mb-2">
+          <div>L{{ ex.layer }}</div><div>{{ ex.timestamp[:10] }}</div>
+        </div>
+        <div class="font-reading leading-relaxed">{{ ex.user_text }}</div>
+      </div>
+    {% else %}
+      <div class="text-tertiary">No personal examples yet.</div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

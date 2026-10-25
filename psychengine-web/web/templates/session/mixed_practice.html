@@ -1,0 +1,23 @@
+{% extends "session/_shell.html" %}
+{% block title %}Mixed Practice{% endblock %}
+{% block activity %}
+
+<div class="text-sm text-tertiary uppercase tracking-wider">Mixed Practice · 10 min</div>
+<h1 class="page-title mt-2">Interleaved retrieval</h1>
+<div class="page-subtitle mt-3">Pull from multiple topics. Interleaving forces real discrimination.</div>
+
+<div class="mt-8 col gap-4">
+  {% for t in active %}
+    <div class="card">
+      <div class="row between mb-3">
+        <div class="card-title">{{ t.name }}</div>
+        <span class="badge badge-layer-{{ t.current_layer }}">L{{ t.current_layer }}</span>
+      </div>
+      <div class="text-secondary mb-3">Without looking: state the core mechanism + one counter.</div>
+      <textarea class="textarea" rows="3"></textarea>
+    </div>
+  {% else %}
+    <div class="card text-tertiary">No active topics yet. Mixed practice unlocks after you complete a few Layer 1s.</div>
+  {% endfor %}
+</div>
+{% endblock %}

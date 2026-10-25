@@ -1,0 +1,20 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">Psych<span>Engine</span></div>
+
+  <div class="nav-section">Today</div>
+  <a class="nav-item {% if request.endpoint == 'public.dashboard' %}active{% endif %}" href="/">Dashboard</a>
+  <a class="nav-item {% if request.endpoint == 'session.player' %}active{% endif %}" href="/session/today">Today's Session</a>
+
+  <div class="nav-section">Learn</div>
+  <a class="nav-item {% if request.endpoint and request.endpoint.startswith('public.topic') %}active{% endif %}" href="/topics">Topics</a>
+  <a class="nav-item {% if request.endpoint and request.endpoint.startswith('public.book') %}active{% endif %}" href="/books">Books</a>
+  <a class="nav-item {% if request.endpoint == 'public.search' %}active{% endif %}" href="/search">Search</a>
+
+  <div class="nav-section">Insights</div>
+  <a class="nav-item {% if request.endpoint == 'public.decay' %}active{% endif %}" href="/decay">Decay</a>
+  <a class="nav-item {% if request.endpoint == 'public.calendar' %}active{% endif %}" href="/calendar">Calendar</a>
+
+  <div class="nav-section">Admin</div>
+  <a class="nav-item {% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}" href="/admin">Library &amp; Topics</a>
+  <a class="nav-item {% if request.endpoint == 'public.settings' %}active{% endif %}" href="/settings">Settings</a>
+</aside>

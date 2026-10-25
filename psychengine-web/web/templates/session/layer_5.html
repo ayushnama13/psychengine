@@ -1,0 +1,28 @@
+{% extends "session/_shell.html" %}
+{% block title %}Layer 5: {{ topic.name }}{% endblock %}
+{% block activity %}
+
+<div class="row gap-2 mb-3"><span class="badge badge-layer-5">LAYER 5 · MASTERY</span></div>
+<h1 class="page-title">{{ topic.name }}</h1>
+<div class="page-subtitle mt-3">Ownership. Prove you own this concept.</div>
+
+<div x-data="{step:'teach', score:null}">
+  <div x-show="step==='teach'" class="card mt-8">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Write as if a book chapter</div>
+    <textarea class="textarea" rows="14" placeholder="Open with the core insight. Build through mechanism, application, edge cases, counters. Close with what only an expert would notice."></textarea>
+    <button class="btn btn-primary mt-4" @click="step='create'">Create your own scenario →</button>
+  </div>
+  <div x-show="step==='create'" class="card mt-8" style="border-left: 3px solid var(--color-success);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Author a scenario</div>
+    <div class="text-secondary mb-3">Design a multi-line dialogue where this tactic appears subtly. Someone else (or future-you) should solve it.</div>
+    <textarea class="textarea" rows="8"></textarea>
+    <div class="mt-4"><label class="input-label">Mastery score (0-100)</label><input class="input" type="number" min="0" max="100" x-model="score"></div>
+    <button class="btn btn-primary mt-4" @click="markComplete({score: parseFloat(score) || 80}); step='done'">Declare mastery →</button>
+  </div>
+  <div x-show="step==='done'" class="card-hero mt-8 streak-celebrate">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Mastered</div>
+    <h2 class="font-display text-3xl mb-3">{{ topic.name }}</h2>
+    <div class="text-secondary text-lg">This topic moves to your mastered library. The system will reintroduce it via pop quizzes if retention drops.</div>
+  </div>
+</div>
+{% endblock %}

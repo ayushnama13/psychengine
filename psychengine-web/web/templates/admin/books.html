@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Books — Admin{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Books (admin)</h1>
+</div>
+
+<div class="col gap-3">
+  {% for b in books %}
+  <div class="card" x-data="{title:'{{ b.title|e }}', author:'{{ (b.author or '')|e }}', cluster:'{{ b.cluster }}', msg:''}">
+    <div class="row between mb-3">
+      <div class="card-title flex-1">{{ b.title }}</div>
+      <span class="cluster-tag cluster-{{ b.cluster }}">{{ b.cluster }}</span>
+      <span class="badge badge-decay-attic font-mono">{{ b.total_chunks }} chunks</span>
+      <button class="btn btn-ghost btn-sm" onclick="del({{ b.id }})">Delete</button>
+    </div>
+    <div class="grid-3 gap-3">
+      <input class="input" x-model="title">
+      <input class="input" x-model="author">
+      <select class="select" x-model="cluster">
+        <option value="dark_psychology">dark_psychology</option>
+        <option value="social_dynamics">social_dynamics</option>
+        <option value="psychology_theory">psychology_theory</option>
+        <option value="mindset">mindset</option>
+      </select>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-secondary btn-sm" @click="save({{ b.id }}, $data)">Save</button>
+      <span x-text="msg" class="ml-3 text-secondary text-sm"></span>
+    </div>
+  </div>
+  {% else %}
+    <div class="text-tertiary">No books.</div>
+  {% endfor %}
+</div>
+
+<script>
+async function save(id, data) {
+  const r = await fetch('/admin/books/' + id + '/update', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({title:data.title, author:data.author, cluster:data.cluster})});
+  data.msg = r.ok ? 'saved.' : 'error.';
+  setTimeout(() => data.msg = '', 2000);
+}
+async function del(id) {
+  if (!confirm('Delete book and all chunks?')) return;
+  await fetch('/admin/books/' + id + '/delete', {method:'POST'});
+  location.reload();
+}
+</script>
+{% endblock %}

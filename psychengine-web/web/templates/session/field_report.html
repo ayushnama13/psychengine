@@ -1,0 +1,28 @@
+{% extends "session/_shell.html" %}
+{% block title %}Field Report{% endblock %}
+{% block activity %}
+
+<div class="text-sm text-tertiary uppercase tracking-wider">Field Report · 10 min</div>
+<h1 class="page-title mt-2">Log a real-world observation</h1>
+<div class="page-subtitle mt-3">Anchor this knowledge to lived experience.</div>
+
+<div x-data="{ctx:'', desc:'', worked:'', failed:'', msg:''}" class="card mt-8">
+  <label class="input-label">Context</label>
+  <input class="input mb-4" x-model="ctx" placeholder="e.g. Coffee with M, Tuesday">
+  <label class="input-label">What happened</label>
+  <textarea class="textarea mb-4" x-model="desc" rows="5"></textarea>
+  <div class="grid-2 gap-4">
+    <div><label class="input-label">What worked</label><textarea class="textarea" x-model="worked" rows="3"></textarea></div>
+    <div><label class="input-label">What didn't</label><textarea class="textarea" x-model="failed" rows="3"></textarea></div>
+  </div>
+  <div class="mt-4">
+    <button class="btn btn-primary" @click="
+      fetch('/api/field_report', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({context:ctx, description:desc, what_worked:worked, what_failed:failed})});
+      markComplete({});
+      msg = 'saved.';
+    ">Save report</button>
+    <span class="ml-3 text-secondary text-sm" x-text="msg"></span>
+  </div>
+</div>
+{% endblock %}

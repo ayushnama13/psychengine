@@ -1,0 +1,43 @@
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: page-enter var(--duration-normal) var(--ease-out); }
+
+.card-grid > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: card-reveal var(--duration-normal) var(--ease-out) forwards;
+}
+.card-grid > *:nth-child(1) { animation-delay: 0ms; }
+.card-grid > *:nth-child(2) { animation-delay: 60ms; }
+.card-grid > *:nth-child(3) { animation-delay: 120ms; }
+.card-grid > *:nth-child(4) { animation-delay: 180ms; }
+.card-grid > *:nth-child(5) { animation-delay: 240ms; }
+.card-grid > *:nth-child(n+6) { animation-delay: 300ms; }
+@keyframes card-reveal { to { opacity: 1; transform: translateY(0); } }
+
+@keyframes correct-flash {
+  0% { background-color: var(--color-success-muted); }
+  50% { background-color: rgba(52, 211, 153, 0.25); }
+  100% { background-color: var(--color-success-muted); }
+}
+.correct-flash { animation: correct-flash var(--duration-slow) var(--ease-default); }
+
+@keyframes wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.wrong-shake { animation: wrong-shake var(--duration-normal) var(--ease-default); }
+
+@keyframes streak-celebrate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.streak-celebrate { animation: streak-celebrate var(--duration-slower) var(--ease-spring); }
+
+.decay-indicator {
+  transition: background-color 2s var(--ease-smooth), color 2s var(--ease-smooth);
+}

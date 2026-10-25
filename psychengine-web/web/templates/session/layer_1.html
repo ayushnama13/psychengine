@@ -1,0 +1,71 @@
+{% extends "session/_shell.html" %}
+{% block title %}Layer 1: {{ topic.name }}{% endblock %}
+{% block activity %}
+
+<div class="row gap-2 mb-3">
+  <span class="badge badge-layer-1">LAYER 1 · WHAT</span>
+  <span class="cluster-tag cluster-{{ topic.cluster_hint or 'attic' }}">{{ topic.cluster_hint or '—' }}</span>
+</div>
+<h1 class="page-title">{{ topic.name }}</h1>
+<div class="page-subtitle mt-3">{{ topic.description or '' }}</div>
+
+<div x-data="{step: 'define', guess: '', score: null}">
+
+  <!-- Step 1: Define Before You Read -->
+  <div x-show="step === 'define'" class="card mt-8" style="border-left: 3px solid var(--accent-primary);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Step 1 · Define Before You Read</div>
+    <h3 class="card-title mb-3">Write what you think this means — before reading anything.</h3>
+    <div class="text-secondary mb-4">The Generation Effect: writing your own definition creates a stronger memory trace than passive reading.</div>
+    <textarea class="textarea" x-model="guess" placeholder="In your own words..."></textarea>
+    <button class="btn btn-primary mt-4" @click="step = 'read'" :disabled="guess.length < 20">Reveal book content →</button>
+  </div>
+
+  <!-- Step 2: Read -->
+  <div x-show="step === 'read'" class="mt-8">
+    <div class="card mb-5" style="border-left: 3px solid var(--color-success);">
+      <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Your definition</div>
+      <div class="font-reading leading-relaxed text-secondary" x-text="guess"></div>
+    </div>
+    <div class="section-title">From the books</div>
+    {% for c in chunks[:3] %}
+    <div class="card mb-4">
+      <div class="row between mb-3">
+        <div class="text-sm text-tertiary">{{ c.book_title }} · {{ c.author or "" }}</div>
+        <span class="cluster-tag cluster-{{ c.cluster }}">{{ c.cluster }}</span>
+      </div>
+      <div class="font-reading leading-relaxed">{{ c.text[:1500] }}{% if c.text|length > 1500 %}…{% endif %}</div>
+    </div>
+    {% endfor %}
+    <button class="btn btn-primary mt-4" @click="step = 'quiz'">Check understanding →</button>
+  </div>
+
+  <!-- Step 3: Quick quiz -->
+  <div x-show="step === 'quiz'" class="card mt-8">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-3">Step 3 · Quick check</div>
+    <div class="col gap-4">
+      <div>
+        <div class="text-secondary mb-2">In one sentence, explain {{ topic.name }} to a friend who has never heard of it.</div>
+        <textarea class="textarea" placeholder="Your explanation..."></textarea>
+      </div>
+      <div>
+        <div class="text-secondary mb-2">Give one real-world example where this concept appears.</div>
+        <textarea class="textarea" placeholder="Your example..."></textarea>
+      </div>
+      <div>
+        <label class="input-label">Self-assessed confidence (0-100)</label>
+        <input class="input" type="number" min="0" max="100" x-model="score" placeholder="e.g. 75">
+      </div>
+    </div>
+    <button class="btn btn-primary mt-5" @click="markComplete({score: parseFloat(score) || 50}); step = 'cliff'">Complete layer →</button>
+  </div>
+
+  <!-- Step 4: Cliffhanger -->
+  <div x-show="step === 'cliff'" class="card-hero mt-8">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Cliffhanger</div>
+    <h2 class="font-display text-2xl mb-3">In 3 days…</h2>
+    <div class="text-secondary text-lg leading-relaxed">You'll learn the psychological mechanism behind <strong>{{ topic.name }}</strong> — why it works at a biological and cognitive level.</div>
+  </div>
+
+</div>
+
+{% endblock %}

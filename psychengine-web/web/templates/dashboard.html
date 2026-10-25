@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <div class="page-subtitle">{{ stats.topics }} topics · {{ stats.books }} books · {{ stats.chunks }} chunks indexed</div>
+  </div>
+  <a href="/session/today" class="btn btn-primary btn-lg">Start Today's Session →</a>
+</div>
+
+<div class="section">
+  <div class="card-hero">
+    <div class="row between" style="align-items: flex-start;">
+      <div class="col">
+        <div class="text-sm text-tertiary uppercase tracking-wider">Today's Session</div>
+        <div class="font-display text-2xl mt-2">{{ session.date if session else "Ready to begin" }}</div>
+        <div class="text-secondary mt-3">
+          {% if session %}
+            Plan ready. Continue where you left off.
+          {% else %}
+            Generate today's plan automatically from due layers and new topic candidates.
+          {% endif %}
+        </div>
+      </div>
+      <a href="/session/today" class="btn btn-primary">{% if session %}Continue{% else %}Generate{% endif %}</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="grid-4">
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.streak }}</div>
+      <div class="stat-label">DAY STREAK</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.mastered }}</div>
+      <div class="stat-label">TOPICS MASTERED</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.topics }}</div>
+      <div class="stat-label">ACTIVE TOPICS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.books }}</div>
+      <div class="stat-label">BOOKS INDEXED</div>
+    </div>
+  </div>
+</div>
+
+{% if going_cold %}
+<div class="section">
+  <div class="section-title">Going Cold</div>
+  <div class="grid-3 card-grid">
+    {% for c in going_cold %}
+    <a href="/topics/{{ c.id }}" class="card interactive">
+      <div class="row between">
+        <div class="card-title">{{ c.name }}</div>
+        <span class="badge badge-decay-{{ c.days_since_engagement|decay_status }}">{{ c.days_since_engagement }}d</span>
+      </div>
+      <div class="card-meta mt-3">est. retention ≈ {{ (c.estimated_retention or 0)|round(0) }}%</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="section">
+  <div class="section-title">Active Topics</div>
+  {% if active_topics %}
+  <div class="grid-3 card-grid">
+    {% for t in active_topics %}
+    <a href="/topics/{{ t.id }}" class="card interactive">
+      <div class="row between">
+        <div class="card-title">{{ t.name }}</div>
+        <span class="badge badge-layer-{{ t.current_layer or 1 }}">L{{ t.current_layer or 1 }}</span>
+      </div>
+      {% if t.cluster_hint %}<div class="mt-2"><span class="cluster-tag cluster-{{ t.cluster_hint }}">{{ t.cluster_hint }}</span></div>{% endif %}
+      <div class="card-meta mt-3"><span class="decay-dot decay-dot-{{ t.days|decay_status }}"></span>{{ t.days|days_ago_human }}</div>
+      <div class="progress mastery mt-3"><div class="progress-fill" style="width: {{ (t.mastery_score or 0)|round }}%"></div></div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+    {% with title="No active topics yet", desc="Review proposed topics in Admin → Topics, approve them, then start a session.", cta_text="Open Admin", cta_href="/admin" %}{% include "components/empty.html" %}{% endwith %}
+  {% endif %}
+</div>
+
+{% if recent %}
+<div class="section">
+  <div class="section-title">Recent Field Reports</div>
+  <div class="col gap-3">
+    {% for r in recent %}
+    <div class="card">
+      <div class="row between">
+        <div class="text-secondary">{{ r.context or "(no context)" }}</div>
+        <div class="text-tertiary text-sm">{{ r.date[:10] }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

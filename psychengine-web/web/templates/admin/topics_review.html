@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Review Topics{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Review Topics</h1>
+    <div class="page-subtitle">Approve proposed topics or merge duplicates.</div>
+  </div>
+  <button class="btn btn-secondary" onclick="approveAll()">Approve all pending</button>
+</div>
+
+<div class="row gap-2 mb-6">
+  <a href="?show=pending" class="btn {% if show=='pending' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">Pending</a>
+  <a href="?show=approved" class="btn {% if show=='approved' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">Approved</a>
+  <a href="?show=all" class="btn {% if show=='all' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">All</a>
+</div>
+
+{% if topics %}
+<div x-data="{ selected: [] }">
+  <div x-show="selected.length > 1" class="card mb-5" style="border-color: var(--accent-primary);">
+    <div class="row between">
+      <div class="text-secondary">Selected: <span x-text="selected.length"></span></div>
+      <div class="row gap-2">
+        <button class="btn btn-primary btn-sm" @click="mergeInto(selected[0])">Merge into first selected</button>
+        <button class="btn btn-ghost btn-sm" @click="selected = []">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-auto card-grid">
+    {% for t in topics %}
+    <div class="card" :class="selected.includes({{ t.id }}) ? 'border-default' : ''" :style="selected.includes({{ t.id }}) ? 'border-color: var(--accent-primary);' : ''">
+      <div class="row between">
+        <a href="/admin/topics/{{ t.id }}" class="card-title">{{ t.name }}</a>
+        <input type="checkbox" @change="selected.includes({{ t.id }}) ? selected = selected.filter(x => x !== {{ t.id }}) : selected.push({{ t.id }})">
+      </div>
+      <div class="card-desc line-clamp-3">{{ t.description or "" }}</div>
+      <div class="row gap-2 mt-3 flex-wrap">
+        {% if t.cluster_hint %}<span class="cluster-tag cluster-{{ t.cluster_hint }}">{{ t.cluster_hint }}</span>{% endif %}
+        <span class="badge badge-decay-attic">{{ t.n_chunks }} chunks</span>
+        {% if t.user_reviewed %}<span class="badge badge-layer-5">approved</span>{% else %}<span class="badge badge-decay-fading">pending</span>{% endif %}
+      </div>
+      <div class="row gap-2 mt-4">
+        {% if not t.user_reviewed %}<button class="btn btn-primary btn-sm" onclick="approve({{ t.id }})">Approve</button>{% endif %}
+        <button class="btn btn-ghost btn-sm" onclick="del({{ t.id }})">Delete</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+  {% with title="Nothing here", desc="No topics match this filter.", cta_text=None %}{% include "components/empty.html" %}{% endwith %}
+{% endif %}
+
+<script>
+async function approve(id) {
+  await fetch('/admin/topics/' + id + '/approve', {method:'POST'});
+  location.reload();
+}
+async function del(id) {
+  if (!confirm('Delete topic ' + id + '?')) return;
+  await fetch('/admin/topics/' + id + '/delete', {method:'POST'});
+  location.reload();
+}
+async function approveAll() {
+  if (!confirm('Approve all pending?')) return;
+  await fetch('/admin/topics/approve_all_pending', {method:'POST'});
+  location.reload();
+}
+async function mergeInto(targetId) {
+  const sel = Alpine.$data(document.querySelector('[x-data]')).selected;
+  if (sel.length < 2) return;
+  const sources = sel.filter(x => x !== targetId);
+  await fetch('/admin/topics/merge', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({source_ids: sources, target_id: targetId})});
+  location.reload();
+}
+</script>
+{% endblock %}

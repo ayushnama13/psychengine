@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Today's Session{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Today's Session</h1>
+    <div class="page-subtitle">{{ plan.date }} · {{ plan.activities|length }} activities · {{ plan.activities|sum(attribute='minutes') }} min total</div>
+  </div>
+  {% if plan.activities %}<a href="/session/activity/0" class="btn btn-primary btn-lg">Begin →</a>{% endif %}
+</div>
+
+{% if not plan.activities %}
+  {% with title="No activities for today", desc="Approve some topics in Admin to populate the schedule.", cta_text="Open Admin", cta_href="/admin/topics" %}{% include "components/empty.html" %}{% endwith %}
+{% else %}
+<div class="col gap-3">
+  {% for a in plan.activities %}
+  <a href="/session/activity/{{ loop.index0 }}" class="card interactive">
+    <div class="row between">
+      <div>
+        <div class="card-title">
+          {% if a.kind == 'morning_recall' %}Morning Recall
+          {% elif a.kind == 'layer' %}Layer {{ a.layer }} — {{ a.topic_name }}{% if a.is_new %} <span class="badge badge-layer-1">NEW</span>{% endif %}
+          {% elif a.kind == 'mixed_practice' %}Mixed Practice
+          {% elif a.kind == 'simulator' %}Scenario Simulator
+          {% elif a.kind == 'field_report' %}Field Report
+          {% elif a.kind == 'end_of_day' %}End-of-Day Primer
+          {% endif %}
+        </div>
+        <div class="card-meta mt-2">{{ a.minutes }} min</div>
+      </div>
+      <div class="text-tertiary">→</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

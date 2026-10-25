@@ -1,0 +1,15 @@
+{% extends "session/_shell.html" %}
+{% block title %}Simulator{% endblock %}
+{% block activity %}
+
+<div class="text-sm text-tertiary uppercase tracking-wider">Scenario Simulator</div>
+<h1 class="page-title mt-2">Coming in Phase 6</h1>
+<div class="page-subtitle mt-3">AI-powered persona chat. Practice identifying tactics under realistic pressure.</div>
+
+<div class="card mt-8 empty">
+  <div class="empty-title">Not built yet</div>
+  <div class="empty-desc">For now, mark complete and continue. Phase 6 will add dynamic AI personas sourced from your book content.</div>
+  <button class="btn btn-primary" onclick="markComplete({skipped:true}); location.href='{% if next_idx is not none %}/session/activity/{{ next_idx }}{% else %}/{% endif %}'">Mark complete</button>
+</div>
+{% endblock %}
+{% block primary_action %}{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Decay{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Decay Dashboard</h1>
+    <div class="page-subtitle">All topics ranked by urgency. Lowest retention first.</div>
+  </div>
+</div>
+
+{% if rows %}
+<div class="card p-0" style="overflow: hidden;">
+  <table style="width:100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background: var(--surface-overlay);">
+        <th style="text-align:left; padding: var(--space-4); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wider); color: var(--text-tertiary);">Topic</th>
+        <th style="text-align:left; padding: var(--space-4); font-size: var(--text-xs); text-transform: uppercase; color: var(--text-tertiary);">Status</th>
+        <th style="text-align:left; padding: var(--space-4); font-size: var(--text-xs); text-transform: uppercase; color: var(--text-tertiary);">Days</th>
+        <th style="text-align:left; padding: var(--space-4); font-size: var(--text-xs); text-transform: uppercase; color: var(--text-tertiary);">Retention</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for r in rows %}
+      <tr style="border-top: 1px solid var(--border-subtle);">
+        <td style="padding: var(--space-4);"><a href="/topics/{{ r.id }}" class="weight-semibold">{{ r.name }}</a>
+          {% if r.cluster_hint %} <span class="cluster-tag cluster-{{ r.cluster_hint }}">{{ r.cluster_hint }}</span>{% endif %}
+        </td>
+        <td style="padding: var(--space-4);"><span class="badge badge-decay-{{ r.decay_status or 'attic' }}"><span class="decay-dot decay-dot-{{ r.decay_status or 'attic' }}"></span>{{ r.decay_status }}</span></td>
+        <td style="padding: var(--space-4);" class="font-mono text-secondary">{{ r.days or "—" }}</td>
+        <td style="padding: var(--space-4);" class="font-mono">{{ (r.retention or 0)|round }}%</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  {% with title="No decay data", desc="Complete a session first to populate retention estimates.", cta_text="Start Session", cta_href="/session/today" %}{% include "components/empty.html" %}{% endwith %}
+{% endif %}
+{% endblock %}

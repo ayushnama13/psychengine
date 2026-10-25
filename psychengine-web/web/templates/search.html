@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Search</h1>
+</div>
+
+<form method="get" action="/search" class="mb-8">
+  <input class="input" name="q" value="{{ q }}" placeholder="Search across all books…" autofocus>
+</form>
+
+{% if q %}
+  <div class="text-tertiary mb-5">{{ results|length }} results</div>
+  <div class="col gap-3">
+    {% for r in results %}
+    <a class="card interactive" href="/books/{{ r.book_id }}#chunk-{{ r.id }}">
+      <div class="row between mb-2">
+        <div class="text-sm text-tertiary">{{ r.book_title }} · {{ r.chapter_name or "—" }} · p.{{ r.page_start }}</div>
+      </div>
+      <div class="font-reading leading-relaxed">{{ r.snip|safe }}</div>
+    </a>
+    {% else %}
+      <div class="text-tertiary">No matches.</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<style>mark { background: var(--accent-primary-muted); color: var(--accent-primary); padding: 0 4px; border-radius: 4px; }</style>
+{% endblock %}

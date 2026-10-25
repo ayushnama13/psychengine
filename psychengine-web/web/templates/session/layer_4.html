@@ -1,0 +1,38 @@
+{% extends "session/_shell.html" %}
+{% block title %}Layer 4: {{ topic.name }}{% endblock %}
+{% block activity %}
+
+<div class="row gap-2 mb-3"><span class="badge badge-layer-4">LAYER 4 · STRESS TEST</span></div>
+<h1 class="page-title">{{ topic.name }}</h1>
+<div class="page-subtitle mt-3">Pressure layer. No warm-up.</div>
+
+<div x-data="{step:'quiz', score:null}">
+  <div x-show="step==='quiz'" class="card mt-8" style="border-left: 3px solid var(--color-danger);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Pop Quiz · Mixed</div>
+    <div class="text-secondary mb-4">Answer fast. No looking up.</div>
+    <div class="col gap-5">
+      <div><div class="text-secondary">1. State the core mechanism in one sentence.</div><textarea class="textarea mt-2" rows="2"></textarea></div>
+      <div><div class="text-secondary">2. Name two other concepts in your taxonomy that interact with this one.</div><textarea class="textarea mt-2" rows="2"></textarea></div>
+      <div><div class="text-secondary">3. Counter-tactic: how do you neutralize this when used on you?</div><textarea class="textarea mt-2" rows="3"></textarea></div>
+    </div>
+    <button class="btn btn-primary mt-5" @click="step='card'">Build mental model card →</button>
+  </div>
+
+  <div x-show="step==='card'" class="card mt-8" style="border-left: 3px solid var(--accent-primary);">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Mental Model Card</div>
+    <div class="grid-2 gap-4">
+      <div><label class="input-label">3-5 key points</label><textarea class="textarea" rows="5"></textarea></div>
+      <div><label class="input-label">When it's used</label><textarea class="textarea" rows="5"></textarea></div>
+      <div><label class="input-label">When it fails</label><textarea class="textarea" rows="5"></textarea></div>
+      <div><label class="input-label">Primary counter</label><textarea class="textarea" rows="5"></textarea></div>
+    </div>
+    <div class="mt-4"><label class="input-label">Stress-test score (0-100)</label><input class="input" type="number" min="0" max="100" x-model="score"></div>
+    <button class="btn btn-primary mt-4" @click="markComplete({score: parseFloat(score) || 70}); step='field'">Field report →</button>
+  </div>
+
+  <div x-show="step==='field'" class="card-hero mt-8">
+    <div class="text-sm text-tertiary uppercase tracking-wider mb-2">Field Prompt</div>
+    <div class="text-lg text-secondary">Have you noticed this concept in real life in the last 3 weeks? Log it in your field report journal.</div>
+  </div>
+</div>
+{% endblock %}
